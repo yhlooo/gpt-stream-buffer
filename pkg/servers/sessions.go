@@ -28,9 +28,9 @@ func (s *SessionServer) Register(ctx context.Context, mux *http.ServeMux) {
 	logger := logr.FromContextOrDiscard(ctx)
 	mux.HandleFunc("POST /v1/sessions", handlerWithLogger(logger, s.handleCreateSession))
 	mux.HandleFunc("DELETE /v1/sessions/{name}", handlerWithLogger(logger, s.handleDeleteSession))
-	mux.HandleFunc("POST /v1/sessions/{name}/message", handlerWithLogger(logger, s.handleCreateSessionMessage))
+	mux.HandleFunc("POST /v1/sessions/{name}/messages", handlerWithLogger(logger, s.handleCreateSessionMessage))
 	mux.HandleFunc(
-		"GET /v1/sessions/{name}/bufferedmessage",
+		"GET /v1/sessions/{name}/bufferedmessages",
 		handlerWithLogger(logger, s.handleGetSessionBufferedMessage),
 	)
 }
