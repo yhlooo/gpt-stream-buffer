@@ -1,0 +1,78 @@
+# goreleaser 配置
+# 参考 https://goreleaser.com
+
+version: 2
+
+builds:
+  - id: gpt-stream-buffer-bin
+    binary: gpt-stream-buffer
+    main: "./cmd/gpt-stream-buffer"
+    env:
+      - "CGO_ENABLED=0"
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - "-X github.com/yhlooo/gpt-stream-buffer/pkg/version.version={{ .Version }}"
+      - "-w"
+
+archives:
+  - format: "tar.gz"
+    name_template: "{{ .Binary }}-v{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+
+dockers:
+  - id: gpt-stream-buffer-image-linux-amd64
+    goos: linux
+    goarch: amd64
+    ids:
+      - gpt-stream-buffer-bin
+    image_templates:
+      - "ghcr.io/yhlooo/gpt-stream-buffer:latest-amd64"
+      - "ghcr.io/yhlooo/gpt-stream-buffer:v{{ .Version }}-amd64"
+    dockerfile: goreleaser.dockerfile
+    build_flag_templates:
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.source=https://github.com/yhlooo/gpt-stream-buffer.git"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.created={{ .Date }}"
+      - "--platform=linux/amd64"
+  - id: gpt-stream-buffer-image-linux-arm64
+    goos: linux
+    goarch: arm64
+    ids:
+      - gpt-stream-buffer-bin
+    image_templates:
+      - "ghcr.io/yhlooo/gpt-stream-buffer:latest-arm64"
+      - "ghcr.io/yhlooo/gpt-stream-buffer:v{{ .Version }}-arm64"
+    dockerfile: goreleaser.dockerfile
+    build_flag_templates:
+      - "--label=org.opencontainers.image.title={{ .ProjectName }}"
+      - "--label=org.opencontainers.image.source=https://github.com/yhlooo/gpt-stream-buffer.git"
+      - "--label=org.opencontainers.image.revision={{ .FullCommit }}"
+      - "--label=org.opencontainers.image.version={{ .Version }}"
+      - "--label=org.opencontainers.image.created={{ .Date }}"
+      - "--platform=linux/arm64"
+docker_manifests:
+  - id: gpt-stream-buffer-image
+    name_template: "ghcr.io/yhlooo/gpt-stream-buffer:v{{ .Version }}"
+    image_templates:
+      - "ghcr.io/yhlooo/gpt-stream-buffer:v{{ .Version }}-amd64"
+      - "ghcr.io/yhlooo/gpt-stream-buffer:v{{ .Version }}-arm64"
+  - id: gpt-stream-buffer-image-latest
+    name_template: "ghcr.io/yhlooo/gpt-stream-buffer:latest"
+    image_templates:
+      - "ghcr.io/yhlooo/gpt-stream-buffer:latest-amd64"
+      - "ghcr.io/yhlooo/gpt-stream-buffer:latest-arm64"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^style:"
+      - "^chore:"

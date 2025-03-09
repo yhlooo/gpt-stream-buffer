@@ -61,6 +61,11 @@ func NewCommandWithOptions(opts *options.Options) *cobra.Command {
 	opts.Global.AddFlags(cmd.PersistentFlags())
 	opts.AddFlags(cmd.Flags())
 
+	// 添加子命令
+	cmd.AddCommand(
+		NewVersionCommandWithOptions(&opts.Version),
+	)
+
 	return cmd
 }
 

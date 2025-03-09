@@ -6,6 +6,7 @@ import "github.com/spf13/pflag"
 func NewDefaultOptions() Options {
 	return Options{
 		Global:     NewDefaultGlobalOptions(),
+		Version:    NewDefaultVersionOptions(),
 		ListenAddr: ":80",
 	}
 }
@@ -14,6 +15,8 @@ func NewDefaultOptions() Options {
 type Options struct {
 	// 全局选项
 	Global GlobalOptions `json:"global,omitempty" yaml:"global,omitempty"`
+	// version 子命令选项
+	Version VersionOptions `json:"version,omitempty" yaml:"version,omitempty"`
 
 	// 监听地址
 	ListenAddr string `json:"listenAddr,omitempty" yaml:"listenAddr,omitempty"`
