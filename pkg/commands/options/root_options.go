@@ -5,7 +5,8 @@ import "github.com/spf13/pflag"
 // NewDefaultOptions 创建一个默认运行选项
 func NewDefaultOptions() Options {
 	return Options{
-		Global: NewDefaultGlobalOptions(),
+		Global:     NewDefaultGlobalOptions(),
+		ListenAddr: ":80",
 	}
 }
 
