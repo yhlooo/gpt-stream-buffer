@@ -94,6 +94,7 @@ func (s *Session) SendMessage(ctx context.Context, message *Message) error {
 	// 发送
 	s.recvDone = make(chan struct{})
 	s.buff = &Message{}
+	s.buffCursor = 0
 	ctx, s.cancelRecv = context.WithCancel(ctx)
 	go s.handleSend(ctx, s.buff, s.recvDone)
 

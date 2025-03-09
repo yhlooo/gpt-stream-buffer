@@ -55,7 +55,10 @@ func (s *SessionServer) CreateSessionMessage(ctx context.Context, name string, m
 	if err != nil {
 		return err
 	}
-	if err := session.SendMessage(ctx, msg); err != nil {
+	if err := session.SendMessage(
+		logr.NewContext(context.Background(), logr.FromContextOrDiscard(ctx)),
+		msg,
+	); err != nil {
 		return err
 	}
 	return nil
@@ -93,10 +96,14 @@ type SimpleResponse struct {
 
 // handleCreateSession 处理创建会话请求
 func (s *SessionServer) handleCreateSession(w http.ResponseWriter, req *http.Request) {
+	logger := logr.FromContextOrDiscard(req.Context())
+
 	session := &sessions.Session{}
 	if !handleReadJSON(w, req, session) {
 		return
 	}
+	raw, _ := json.Marshal(session)
+	logger.Info(fmt.Sprintf("create session: %s", string(raw)))
 
 	session, err := s.CreateSession(req.Context(), session)
 	if err != nil {
@@ -109,11 +116,14 @@ func (s *SessionServer) handleCreateSession(w http.ResponseWriter, req *http.Req
 
 // handleDeleteSession 处理删除会话请求
 func (s *SessionServer) handleDeleteSession(w http.ResponseWriter, req *http.Request) {
+	logger := logr.FromContextOrDiscard(req.Context())
+
 	sessionName := req.PathValue("name")
 	if sessionName == "" {
 		writeError(w, http.StatusBadRequest, fmt.Errorf("session name is required"))
 		return
 	}
+	logger.Info(fmt.Sprintf("delete session: %q", sessionName))
 
 	if err := s.DeleteSession(req.Context(), sessionName); err != nil {
 		writeError(w, http.StatusInternalServerError, err)
@@ -125,6 +135,8 @@ func (s *SessionServer) handleDeleteSession(w http.ResponseWriter, req *http.Req
 
 // handleCreateSessionMessage 处理创建会话消息请求
 func (s *SessionServer) handleCreateSessionMessage(w http.ResponseWriter, req *http.Request) {
+	logger := logr.FromContextOrDiscard(req.Context())
+
 	sessionName := req.PathValue("name")
 	if sessionName == "" {
 		writeError(w, http.StatusBadRequest, fmt.Errorf("session name is required"))
@@ -135,6 +147,8 @@ func (s *SessionServer) handleCreateSessionMessage(w http.ResponseWriter, req *h
 	if !handleReadJSON(w, req, msg) {
 		return
 	}
+	raw, _ := json.Marshal(msg)
+	logger.Info(fmt.Sprintf("create session messages: name: %q, data: %s", sessionName, string(raw)))
 
 	if err := s.CreateSessionMessage(req.Context(), sessionName, msg); err != nil {
 		writeError(w, http.StatusInternalServerError, err)
@@ -146,11 +160,14 @@ func (s *SessionServer) handleCreateSessionMessage(w http.ResponseWriter, req *h
 
 // handleGetSessionBufferedMessage 处理获取缓冲区消息请求
 func (s *SessionServer) handleGetSessionBufferedMessage(w http.ResponseWriter, req *http.Request) {
+	logger := logr.FromContextOrDiscard(req.Context())
+
 	sessionName := req.PathValue("name")
 	if sessionName == "" {
 		writeError(w, http.StatusBadRequest, fmt.Errorf("session name is required"))
 		return
 	}
+	logger.Info(fmt.Sprintf("get session messages: %q", sessionName))
 
 	msg, err := s.GetSessionBufferedMessage(req.Context(), sessionName)
 	if err != nil {
